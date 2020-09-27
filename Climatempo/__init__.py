@@ -75,7 +75,7 @@ class Climatempo:
 
     def serialize_forecast(self, forecast):
         return {
-            ATTR_FORECAST_TIME: forecast["date"],
+            ATTR_FORECAST_TIME: forecast["date"] + "T00:00:00-03:00",
             ATTR_FORECAST_TEMP: forecast["temperature"]["max"],
             ATTR_FORECAST_CONDITION: self._get_condition(forecast["text_icon"]["icon"]["day"]),
             ATTR_FORECAST_TEMP_LOW: forecast["temperature"]["min"],
