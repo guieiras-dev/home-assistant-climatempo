@@ -32,9 +32,9 @@ class Climatempo:
     WEATHER_API_URL = 'http://apiadvisor.climatempo.com.br/api/v1/weather/locale/{}/current'
     FORECAST_API_URL = 'http://apiadvisor.climatempo.com.br/api/v1/forecast/locale/{}/days/15'
 
-    def __init__(self, token, locale):
+    def __init__(self, api_key, locale):
         """Initialize the data object."""
-        self._token = token
+        self._token = api_key
         self._locale = locale
         self.data = {}
         self._last_updated_at = datetime(2000, 1, 1, 0, 0)
