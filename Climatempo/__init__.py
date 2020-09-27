@@ -2,6 +2,23 @@ import requests
 from datetime import (datetime, timedelta)
 from logging import getLogger
 from homeassistant.util import Throttle
+from homeassistant.components.weather import (
+    ATTR_WEATHER_TEMPERATURE,
+    ATTR_WEATHER_PRESSURE,
+    ATTR_WEATHER_HUMIDITY,
+    ATTR_WEATHER_WIND_SPEED,
+    ATTR_WEATHER_WIND_BEARING,
+    ATTR_FORECAST,
+    ATTR_FORECAST_TIME,
+    ATTR_FORECAST_TEMP,
+    ATTR_FORECAST_CONDITION,
+    ATTR_FORECAST_TEMP_LOW,
+    ATTR_FORECAST_PRECIPITATION,
+    ATTR_FORECAST_PRECIPITATION_PROBABILITY,
+    ATTR_FORECAST_WIND_BEARING,
+    ATTR_FORECAST_WIND_SPEED
+)
+
 from homeassistant.const import HTTP_OK
 
 _LOGGER = getLogger(__name__)
@@ -43,12 +60,13 @@ class Climatempo:
     def set_data(self, weather, forecast):
         """Set data using the last record from API."""
         self.data = {
-            "temperature": weather["temperature"],
-            "pressure": weather["pressure"],
-            "humidity": weather["humidity"],
-            "wind_speed": weather["wind_velocity"],
-            "wind_bearing": weather["wind_direction"],
-            "forecast": list(map(self.serialize_forecast, forecast))
+            ATTR_FORECAST_CONDITION: self._get_condition(weather["icon"]),
+            ATTR_WEATHER_TEMPERATURE: weather["temperature"],
+            ATTR_WEATHER_PRESSURE: weather["pressure"],
+            ATTR_WEATHER_HUMIDITY: weather["humidity"],
+            ATTR_WEATHER_WIND_SPEED: weather["wind_velocity"],
+            ATTR_WEATHER_WIND_BEARING: weather["wind_direction"],
+            ATTR_FORECAST: list(map(self.serialize_forecast, forecast))
         }
 
     def get_data(self, variable):
@@ -57,12 +75,41 @@ class Climatempo:
 
     def serialize_forecast(self, forecast):
         return {
-            "datetime": forecast["date"],
-            "temperature": forecast["temperature"]["max"],
-            "condition": '',
-            "templow": forecast["temperature"]["min"],
-            "precipitation": forecast["rain"]["precipitation"],
-            "precipitation_probability": forecast["rain"]["precipitation"],
-            "wind_bearing": forecast["wind"]["direction"],
-            "wind_speed": forecast["wind"]["velocity_avg"],
+            ATTR_FORECAST_TIME: forecast["date"],
+            ATTR_FORECAST_TEMP: forecast["temperature"]["max"],
+            ATTR_FORECAST_CONDITION: self._get_condition(forecast["text_icon"]["icon"]["day"]),
+            ATTR_FORECAST_TEMP_LOW: forecast["temperature"]["min"],
+            ATTR_FORECAST_PRECIPITATION: forecast["rain"]["precipitation"],
+            ATTR_FORECAST_PRECIPITATION_PROBABILITY: forecast["rain"]["precipitation"],
+            ATTR_FORECAST_WIND_BEARING: forecast["wind"]["direction"],
+            ATTR_FORECAST_WIND_SPEED: forecast["wind"]["velocity_avg"],
         }
+
+    def _get_condition(self, condition):
+        return {
+            '1': 'sunny',
+            '1n': 'clear-night',
+            '2': 'partlycloudy',
+            '2n': 'partlycloudy',
+            '2r': 'cloudy',
+            '2rn': 'cloudy',
+            '3': 'rainy',
+            '3n': 'rainy',
+            '3tm': 'cloudy',
+            '4': 'rainy',
+            '4n': 'rainy',
+            '4r': 'pouring',
+            '4rn': 'pouring',
+            '4t': 'lightning-rainy',
+            '4tn': 'lightning-rainy',
+            '5': 'pouring',
+            '5n': 'pouring',
+            '6': 'lightning-rainy',
+            '6n': 'lightning-rainy',
+            '7': 'snowy',
+            '7n': 'snowy',
+            '8': 'snowy-rainy',
+            '8n': 'snowy-rainy',
+            '9': 'windy-variant',
+            '9n': 'windy-variant'
+        }[condition]
