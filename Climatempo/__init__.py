@@ -66,7 +66,7 @@ class Climatempo:
             ATTR_WEATHER_HUMIDITY: weather["humidity"],
             ATTR_WEATHER_WIND_SPEED: weather["wind_velocity"],
             ATTR_WEATHER_WIND_BEARING: weather["wind_direction"],
-            ATTR_FORECAST: list(map(self.serialize_forecast, forecast))
+            ATTR_FORECAST: self.data[ATTR_FORECAST] if forecast is None else list(map(self.serialize_forecast, forecast))
         }
 
     def get_data(self, variable):
