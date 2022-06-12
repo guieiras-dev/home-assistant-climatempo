@@ -19,7 +19,9 @@ from homeassistant.components.weather import (
     ATTR_FORECAST_WIND_SPEED
 )
 
-from homeassistant.const import HTTP_OK
+#from homeassistant.const import HTTP_OK
+
+from http import HTTPStatus
 
 _LOGGER = getLogger(__name__)
 
@@ -46,13 +48,13 @@ class Climatempo:
         response = requests.get(self.WEATHER_API_URL.format(self._locale), params=params)
         forecast_response = None
 
-        if response.status_code != HTTP_OK:
+        if response.status_code != HTTPStatus.OK:
             _LOGGER.error("Invalid response: %s", response.status_code)
             return
 
         if (datetime.now() - self._last_updated_at).days > 0:
             forecast_response = requests.get(self.FORECAST_API_URL.format(self._locale), params=params)
-            if forecast_response.status_code == HTTP_OK:
+            if forecast_response.status_code == HTTPStatus.OK:
                 self._last_updated_at = datetime.now()
 
         self.set_data(response.json()["data"], None if forecast_response is None else forecast_response.json()["data"])
